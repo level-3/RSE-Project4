@@ -12,7 +12,7 @@ ros::Publisher motor_command_publisher;
 bool handle_drive_request(ball_chaser::DriveToTarget::Request& req, ball_chaser::DriveToTarget::Response& res)
 {
 
-    ROS_INFO("DriveToTargetRequest received - linear_x:%1.2f, angular_z:%1.2f", (float)req.linear_x, (float)req.angular_z);
+   // ROS_INFO("DriveToTargetRequest received - linear_x:%1.2f, angular_z:%1.2f", (float)req.linear_x, (float)req.angular_z);
         
    
         
@@ -24,13 +24,13 @@ bool handle_drive_request(ball_chaser::DriveToTarget::Request& req, ball_chaser:
     // Publish angles to drive the robot
     motor_command_publisher.publish(motor_command);
 
-    // Wait 3 seconds for arm to settle
+    // Wait 3 seconds for robot to settle
     ros::Duration(3).sleep();
 
     // Return a response message
     res.msg_feedback = "wheel velocities set - linear_x: " + std::to_string(motor_command.linear.x) + " , angular_z: " + std::to_string(motor_command.angular.z);
     
-    ROS_INFO_STREAM(res.msg_feedback);
+    //ROS_INFO_STREAM(res.msg_feedback);
 
     return true;
 }
@@ -50,18 +50,6 @@ int main(int argc, char** argv)
 
     // TODO: Define a drive /ball_chaser/command_robot service with a handle_drive_request callback function
     ros::ServiceServer service = n.advertiseService("/ball_chaser/command_robot", handle_drive_request);
-
-
-    // TODO: Delete the loop, move the code to the inside of the callback function and make the necessary changes to publish the requested velocities instead of constant values
-//    while (ros::ok()) {
-//        // Create a motor_command object of type geometry_msgs::Twist
-//        geometry_msgs::Twist motor_command;
-//        // Set wheel velocities, forward [0.5, 0.0]
-//        motor_command.linear.x = 0.5;
-//        motor_command.angular.z = 0.0;
-//        // Publish angles to drive the robot
-//        motor_command_publisher.publish(motor_command);
-//    }
 
     // TODO: Handle ROS communication events
     ros::spin();

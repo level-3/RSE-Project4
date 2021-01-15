@@ -4,6 +4,8 @@ project(ball_chaser)
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
 
+set(OpenCV_DIR /usr/share/OpenCV/) #added for OpenCV
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -11,7 +13,13 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   roscpp
   std_msgs
+  sensor_msgs #added
+  cv_bridge #added
+  image_transport #added
+  OpenCV REQUIRED #added
 )
+
+
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -69,7 +77,7 @@ add_service_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
    DEPENDENCIES
-   std_msgs
+   std_msgs 
  )
 
 ################################################
@@ -206,6 +214,7 @@ include_directories(
 
 
 include_directories(include ${catkin_INCLUDE_DIRS})
+
 add_executable(drive_bot src/drive_bot.cpp )
 target_link_libraries(drive_bot ${catkin_LIBRARIES})
 add_dependencies(drive_bot ball_chaser_generate_messages_cpp)
@@ -213,3 +222,19 @@ add_dependencies(drive_bot ball_chaser_generate_messages_cpp)
 add_executable(process_image src/process_image.cpp )
 target_link_libraries(process_image ${catkin_LIBRARIES})
 add_dependencies(process_image ball_chaser_generate_messages_cpp)
+
+
+#added for OpenCV
+#include_directories( ${OpenCV_INCLUDE_DIRS} )
+#add_executable(image_converter src/image_converter.cpp )
+#target_link_libraries(image_converter ${catkin_LIBRARIES} ${OpenCV_LIBS})
+#add_dependencies(image_converter ball_chaser_generate_messages_cpp)
+
+# If the package has been found, several variables will
+# be set, you can find the full list with descriptions
+# in the OpenCVConfig.cmake file.
+# Print some message showing some of them
+#message(STATUS "OpenCV library status:")
+#message(STATUS "    version: ${OpenCV_VERSION}")
+#message(STATUS "    libraries: ${OpenCV_LIBS}")
+#message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")

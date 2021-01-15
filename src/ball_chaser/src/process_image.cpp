@@ -2,6 +2,28 @@
 #include "ball_chaser/DriveToTarget.h"
 #include <sensor_msgs/Image.h>
 
+/* https://dabit-industries.github.io/turtlebot2-tutorials/14c-OpenCV2_CPP.html */
+ // Include opencv2
+ #include <opencv2/imgproc/imgproc.hpp>
+ #include <opencv2/highgui/highgui.hpp>
+
+ // Include CvBridge, Image Transport, Image msg
+ #include <image_transport/image_transport.h>
+ #include <cv_bridge/cv_bridge.h>
+ #include <sensor_msgs/image_encodings.h>
+
+ // OpenCV Window Name
+ static const std::string OPENCV_WINDOW = "Process Image";
+
+ // Topics
+ static const std::string IMAGE_TOPIC = "/camera/rgb/image_raw";
+ static const std::string PUBLISH_TOPIC = "/image_converter/output_video";
+  // Publisher
+    ros::Publisher pub;
+
+/* -------------------------------------------------------------------------------------*/
+
+
 // Define a global client that can request services
 ros::ServiceClient client;
 
@@ -38,32 +60,34 @@ void process_image_callback(const sensor_msgs::Image img)
     int w = 1;
 
     //ROS_INFO_STREAM("Image- \nWidth:" + std::to_string(img.width) + " \nHeight:" + std::to_string(img.height) + " \nStep:" + std::to_string(img.step));
-
-
-    for (int i = 0; i < img.height * img.step; i+=3) {
-
-        if (img.data[i] == white_pixel) {
-            //int h = i % img.step;
-            found_ball = true;
-            //ROS_INFO_STREAM("w :" + std::to_string(h) );
-            break;
+    
+    int col ;
+    for (int i = 0; i < img.height ; i++) 
+    {
+        for (int j = 0; j < img.step ; j+=3)
+        {
+            if (img.data[img.step*i + j] ==255 && img.data[img.step*i + j+1] ==255 && img.data[img.step*i + j+2] ==255)
+            {
+                found_ball = true;
+                col = j/3;
+                break;
+            }
         }
-    
-        if (w > img.width) {w = 0;h++;}
-        else{w++;}
-    
-    } 
-
-    if (found_ball == true){
-        float lin_x = 0.1;
-        float ang_z = tan(((w-(img.width/2))/1) / (2 * M_PI));
-
-        ROS_INFO_STREAM("drive_robot lin_x:" + std::to_string(lin_x) + " ang_z:" + std::to_string(ang_z));
-        drive_robot(lin_x, ang_z);
     }
-    else {drive_robot(0, 0);}
 
-    ROS_INFO_STREAM("found_ball :" + std::to_string(found_ball) + " w:" + std::to_string(w) + " h:" + std::to_string(h) );
+    float direction;
+    float speed = 0.5;
+    if (found_ball){
+        if (col <= img.width/4){direction = 0.5;}   //turn left
+        if (col > img.width/4 && col < img.width*3/4 ){direction = 0.0;}  //go straight
+        if (col >= img.width*3/4){direction = -0.5;}  //turn right
+
+        ROS_INFO_STREAM("found_ball :" + std::to_string(found_ball) + " dir:" + std::to_string(direction) + " col:" + std::to_string(col) );         
+        
+        drive_robot(speed,direction); 
+
+    } else {drive_robot(0,0);}
+
 
 }
 
@@ -78,7 +102,7 @@ int main(int argc, char** argv)
 
     // Subscribe to /camera/rgb/image_raw topic to read the image data inside the process_image_callback function
     ros::Subscriber sub1 = n.subscribe("/camera/rgb/image_raw", 10, process_image_callback);
-
+       
     // Handle ROS communication events
     ros::spin();
 
