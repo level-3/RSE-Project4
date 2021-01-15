@@ -4,7 +4,7 @@ project(ball_chaser)
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
 
-set(OpenCV_DIR /usr/share/OpenCV/) #added for OpenCV
+#set(OpenCV_DIR /usr/share/OpenCV/) #added for OpenCV
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -13,10 +13,10 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   roscpp
   std_msgs
-  sensor_msgs #added
-  cv_bridge #added
-  image_transport #added
-  OpenCV REQUIRED #added
+  #sensor_msgs #added
+  #cv_bridge #added
+  #image_transport #added
+  #OpenCV REQUIRED #added
 )
 
 
