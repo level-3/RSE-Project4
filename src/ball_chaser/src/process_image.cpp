@@ -2,26 +2,6 @@
 #include "ball_chaser/DriveToTarget.h"
 #include <sensor_msgs/Image.h>
 
-/* https://dabit-industries.github.io/turtlebot2-tutorials/14c-OpenCV2_CPP.html */
- // Include opencv2
- #include <opencv2/imgproc/imgproc.hpp>
- #include <opencv2/highgui/highgui.hpp>
-
- // Include CvBridge, Image Transport, Image msg
- #include <image_transport/image_transport.h>
- #include <cv_bridge/cv_bridge.h>
- #include <sensor_msgs/image_encodings.h>
-
- // OpenCV Window Name
- static const std::string OPENCV_WINDOW = "Process Image";
-
- // Topics
- static const std::string IMAGE_TOPIC = "/camera/rgb/image_raw";
- static const std::string PUBLISH_TOPIC = "/image_converter/output_video";
-  // Publisher
-    ros::Publisher pub;
-
-/* -------------------------------------------------------------------------------------*/
 
 
 // Define a global client that can request services
