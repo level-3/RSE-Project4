@@ -1,10 +1,20 @@
 <?xml version="1.0" ?>
 <robot name="Robo4" xmlns:xacro="http://www.ros.org/wiki/xacro">
-  
+
+  <material name="blue">
+    <color rgba="0 0 0.8 1"/>
+  </material>
+  <material name="black">
+    <color rgba="0 0 0 1"/>
+  </material>
+  <material name="orange">
+    <color rgba="1 0.5 0.3 1"/>
+  </material>
 
   <xacro:include filename="$(find my_robot)/urdf/my_robot.gazebo" />
 
   <link name="robot_footprint"/>
+
 
 
 <joint name="robot_footprint_chassis" type="fixed">
@@ -24,60 +34,103 @@
        iyy="0.1" iyz="0" 
        izz="0.1"/>
     </inertial>
+
     <collision name="collision">
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <box size="0.50 0.25 0.1"/>
       </geometry>
     </collision>
+    
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <box size="0.50 0.25 0.1"/>
       </geometry>
+      <material name="orange"/>
     </visual>  
-<!--
+
+
+  </link>
+  <gazebo reference="chassis">
+      <material>Gazebo/Orange</material>
+  </gazebo>
+
+<joint name="chassis_front_caster" type="fixed">
+  <origin xyz="0 0 0" rpy="0 0 0" />
+  <parent link="chassis"/>
+  <child link="front_caster"/>
+</joint>
+
+<link name="front_caster">
+    <inertial>
+      <mass value="2"/>
+      <origin xyz="0.20 0 -0.05" rpy=" 0 0 0"/>
+      <inertia
+       ixx="0.01" ixy="0" ixz="0" 
+       iyy="0.01" iyz="0" 
+       izz="0.01"/>
+    </inertial>
     <collision name='front_caster_collision'>
-      <origin xyz="0.15 0 -0.05" rpy=" 0 0 0"/>
+      <origin xyz="0.20 0 -0.05" rpy=" 0 0 0"/>
       <geometry>
         <sphere radius="0.0499"/>
       </geometry>
     </collision>
 
     <visual name='front_caster_visual'>
-      <origin xyz="0.15 0 -0.05" rpy=" 0 0 0"/>
+      <origin xyz="0.20 0 -0.05" rpy=" 0 0 0"/>
       <geometry>
         <sphere radius="0.05"/>
       </geometry>
+      <material name="black"/>
     </visual>
+</link>
+
+<joint name="chassis_back_caster" type="fixed">
+  <origin xyz="0 0 0" rpy="0 0 0" />
+  <parent link="chassis"/>
+  <child link="back_caster"/>
+</joint>
+
+<link name="back_caster">
+    <inertial>
+      <mass value="2"/>
+      <origin xyz="-0.20 0 -0.05" rpy=" 0 0 0"/>
+      <inertia
+       ixx="0.01" ixy="0" ixz="0" 
+       iyy="0.01" iyz="0" 
+       izz="0.01"/>
+    </inertial>
+
 
     <collision name='back_caster_collision'>
-      <origin xyz="-0.15 0 -0.05" rpy=" 0 0 0"/>
+      <origin xyz="-0.20 0 -0.05" rpy=" 0 0 0"/>
       <geometry>
         <sphere radius="0.0499"/>
       </geometry>
     </collision>
 
     <visual name='back_caster_visual'>
-      <origin xyz="-0.15 0 -0.05" rpy=" 0 0 0"/>
+      <origin xyz="-0.20 0 -0.05" rpy=" 0 0 0"/>
       <geometry>
         <sphere radius="0.05"/>
       </geometry>
+      <material name="black"/>
     </visual>
--->
-  </link>
-  <gazebo reference="chassis">
-      <material>Gazebo/Orange</material>
-  </gazebo>
 
+</link>
 
+  <xacro:property name="wheel_damping" value="0.5" />
+  <xacro:property name="wheel_friction" value="0.5" />
+  
   <joint name="left_front" type="continuous">
     <parent link="chassis"/>
     <child link="left_wheel"/>
     <origin xyz="0.15 0.15 0.0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
     <limit effort="10000" velocity="1000"/>
-    <dynamics damping="1.0" friction="1.0"/>
+    <dynamics damping="${wheel_damping}" friction="${wheel_friction}"/>
   </joint>
 
   <joint name="right_front" type="continuous">
@@ -86,7 +139,7 @@
     <origin xyz="0.15 -0.15 0.0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
     <limit effort="10000" velocity="1000"/>
-    <dynamics damping="1.0" friction="1.0"/>
+    <dynamics damping="${wheel_damping}" friction="${wheel_friction}"/>
   </joint>
 
 <!---->
@@ -96,7 +149,7 @@
     <origin xyz="-0.15 0.15 0.0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
     <limit effort="10000" velocity="1000"/>
-    <dynamics damping="1.0" friction="1.0"/>
+    <dynamics damping="${wheel_damping}" friction="${wheel_friction}"/>
   </joint>
 
   <joint name="right_rear" type="continuous">
@@ -105,30 +158,39 @@
     <origin xyz="-0.15 -0.15 0.0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
     <limit effort="10000" velocity="1000"/>
-    <dynamics damping="1.0" friction="1.0"/>
+    <dynamics damping="${wheel_damping}" friction="${wheel_friction}"/>
   </joint>
 
+  <xacro:property name="wheel_radius"   value="0.10" />
+  <xacro:property name="wheel_width"    value="0.05" />
+  <xacro:property name="wheel_mass"     value="5" />
+  <xacro:property name="wheel_inertia"  value="${(1/2) * wheel_mass * wheel_radius * wheel_radius }" />
+  <!-- "${(1 / 12) * wheel_mass * ( (3 * wheel_radius * wheel_radius) + (wheel_width * wheel_width ) ) }" -->
+  <xacro:property name="wheel_ixx"   value="0.03" />
+  <xacro:property name="wheel_iyy"   value="${wheel_inertia}" />
+  <xacro:property name="wheel_izz"   value="0.03" />
 
   <link name="left_wheel">
     <inertial>
-      <mass value="1"/>
+      <mass value="${wheel_mass}"/>
       <origin xyz="0.0 0 0" rpy=" 0 1.5707 1.5707"/>
       <inertia
-       ixx="0.1" ixy="0" ixz="0" 
-       iyy="0.1" iyz="0" 
-       izz="0.1"/>
+       ixx="${wheel_ixx}" ixy="0" ixz="0" 
+       iyy="${wheel_iyy}" iyz="0" 
+       izz="${wheel_izz}"/>
     </inertial>
     <collision name="collision">
       <origin xyz="0.0 0 0" rpy=" 0 1.5707 1.5707"/>
       <geometry>
-        <cylinder length="0.05" radius="0.1"/>
+        <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
       </geometry>
     </collision>
     <visual>
       <origin xyz="0.0 0 0" rpy=" 0 1.5707 1.5707"/>
       <geometry>
-        <cylinder length="0.05" radius="0.1"/>
+        <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
       </geometry>
+      <material name="black"/>
     </visual>
   </link>
   <gazebo reference="left_wheel">
@@ -137,24 +199,25 @@
 
   <link name="right_wheel">
     <inertial>
-      <mass value="1"/>
+      <mass value="${wheel_mass}"/>
       <origin xyz="0.0 0 0" rpy=" 0 1.5707 1.5707"/>
       <inertia
-       ixx="0.1" ixy="0" ixz="0" 
-       iyy="0.1" iyz="0" 
-       izz="0.1"/>
+       ixx="${wheel_ixx}" ixy="0" ixz="0" 
+       iyy="${wheel_iyy}" iyz="0" 
+       izz="${wheel_izz}"/>
     </inertial>
     <collision name="collision">
       <origin xyz="0.0 0 0" rpy=" 0 1.5707 1.5707"/>
       <geometry>
-        <cylinder length="0.05" radius="0.1"/>
+        <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
       </geometry>
     </collision>
     <visual>
       <origin xyz="0.0 0 0" rpy=" 0 1.5707 1.5707"/>
       <geometry>
-        <cylinder length="0.05" radius="0.1"/>
+        <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
       </geometry>
+      <material name="black"/>
     </visual>
   </link>
   <gazebo reference="right_wheel">
@@ -164,24 +227,25 @@
 <!---->
   <link name="left_rear">
     <inertial>
-      <mass value="1"/>
+      <mass value="${wheel_mass}"/>
       <origin xyz="0.0 0 0" rpy=" 0 1.5707 1.5707"/>
       <inertia
-       ixx="0.1" ixy="0" ixz="0" 
-       iyy="0.1" iyz="0" 
-       izz="0.1"/>
+       ixx="${wheel_ixx}" ixy="0" ixz="0" 
+       iyy="${wheel_iyy}" iyz="0" 
+       izz="${wheel_izz}"/>
     </inertial>
     <collision name="collision">
       <origin xyz="0.0 0 0" rpy=" 0 1.5707 1.5707"/>
       <geometry>
-        <cylinder length="0.05" radius="0.1"/>
+        <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
       </geometry>
     </collision>
     <visual>
       <origin xyz="0.0 0 0" rpy=" 0 1.5707 1.5707"/>
       <geometry>
-        <cylinder length="0.05" radius="0.1"/>
+        <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
       </geometry>
+      <material name="black"/>
     </visual>
   </link>
   <gazebo reference="left_rear">
@@ -190,24 +254,25 @@
 
   <link name="right_rear">
     <inertial>
-      <mass value="1"/>
+      <mass value="${wheel_mass}"/>
       <origin xyz="0.0 0 0" rpy=" 0 1.5707 1.5707"/>
       <inertia
-       ixx="0.1" ixy="0" ixz="0" 
-       iyy="0.1" iyz="0" 
-       izz="0.1"/>
+       ixx="${wheel_ixx}" ixy="0" ixz="0" 
+       iyy="${wheel_iyy}" iyz="0" 
+       izz="${wheel_izz}"/>
     </inertial>
     <collision name="collision">
       <origin xyz="0.0 0 0" rpy=" 0 1.5707 1.5707"/>
       <geometry>
-        <cylinder length="0.05" radius="0.1"/>
+        <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
       </geometry>
     </collision>
     <visual>
       <origin xyz="0.0 0 0" rpy=" 0 1.5707 1.5707"/>
       <geometry>
-        <cylinder length="0.05" radius="0.1"/>
+        <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
       </geometry>
+      <material name="black"/>
     </visual>
   </link>
   <gazebo reference="right_rear">
@@ -226,6 +291,7 @@
       <geometry>
         <box size="0.05 0.05 0.04"/>
       </geometry>
+      <material name="blue"/>
     </visual>
     <collision name="camera_collision">
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
@@ -288,8 +354,38 @@
   <gazebo reference="camera">
       <material>Gazebo/Blue</material>
   </gazebo>
-  
 
+<!--
+  <joint name="bumper_joint" type="fixed">
+    <origin xyz="0.265 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    <child link="bumper"/>  
+    <parent link="chassis"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+  </joint>
 
+  <link name="bumper">
+    <inertial>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <mass value="0.1"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+    </inertial>
+    <visual name="bumper_visual">
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <geometry>
+        <box size="0.02 0.35 0.1"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+    <collision name="bumper_collision">
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <geometry>
+        <box size="0.02 0.35 0.1"/>
+      </geometry>
+    </collision>
+  </link>
 
+  <gazebo reference="bumper">
+      <material>Gazebo/Orange</material>
+  </gazebo>
+-->  
 </robot>
